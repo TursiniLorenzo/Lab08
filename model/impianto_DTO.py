@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from database.consumo_DAO import ConsumoDAO
-
 '''
     DTO (Data Transfer Object) dell'entità Impianto
 '''
@@ -17,6 +16,9 @@ class Impianto:
     def get_consumi(self):
         """ Aggiorna e Restituisce la lista di consumi (self.lista_consumi) associati all'impianto"""
         # TODO
+        consumi = ConsumoDAO.get_consumi (self.id)
+        self.lista_consumi.append (consumi)
+        return self.lista_consumi
 
     def __eq__(self, other):
         return isinstance(other, Impianto) and self.id == other.id
