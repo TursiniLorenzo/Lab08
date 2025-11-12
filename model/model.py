@@ -66,8 +66,35 @@ class Model:
     def __ricorsione(self, sequenza_parziale, giorno, ultimo_impianto, costo_corrente, consumi_settimana):
         """ Implementa la ricorsione """
         # TODO
-        sequenza_parziale = []
-        giorno = 1
+        if giorno == 8 :
+            self.__costo_ottimo = costo_corrente
+            self.__sequenza_ottima = list (sequenza_parziale)
+
+        else :
+            id_impianto1 = self._impianti [0].id
+            id_impianto2 = self._impianti [1].id
+
+            consumo_impianto1 = consumi_settimana [id_impianto1] [giorno-1]
+            consumo_impianto2 = consumi_settimana [id_impianto2] [giorno-1]
+
+            if consumo_impianto1 <= consumo_impianto2 :
+                id_scelto = id_impianto2
+                consumo_scelto = consumo_impianto1
+            else :
+                id_scelto = id_impianto1
+                consumo_scelto = consumo_impianto2
+
+            costo_corrente += consumo_scelto
+
+            if ultimo_impianto is not None and ultimo_impianto != id_scelto :
+                costo_corrente += (consumo_scelto + 5)
+
+            sequenza_parziale.append (id_scelto)
+            ultimo_impianto = id_scelto
+            giorno += 1
+
+            self.__ricorsione (sequenza_parziale, giorno, ultimo_impianto, costo_corrente, consumi_settimana)
+
 
     def __get_consumi_prima_settimana_mese(self, mese: int):
         """
@@ -79,7 +106,7 @@ class Model:
 
         for impianto in self._impianti :
             consumi = ConsumoDAO.get_consumi (impianto.id)
-            valori_prima_settimana = []
+            valori_prima_settimana = [0] * 7
 
             for consumo in consumi :
                 if consumo.data.month == mese and consumo.data.day in range (1, 8) :
