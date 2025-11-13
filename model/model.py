@@ -68,7 +68,7 @@ class Model:
         # TODO
         if giorno == 8 :
             self.__costo_ottimo = costo_corrente
-            self.__sequenza_ottima = list (sequenza_parziale)
+            self.__sequenza_ottima = sequenza_parziale
 
         else :
             id_impianto1 = self._impianti [0].id
@@ -77,20 +77,23 @@ class Model:
             consumo_impianto1 = consumi_settimana [id_impianto1] [giorno-1]
             consumo_impianto2 = consumi_settimana [id_impianto2] [giorno-1]
 
-            if consumo_impianto1 <= consumo_impianto2 :
-                id_scelto = id_impianto2
-                consumo_scelto = consumo_impianto1
-            else :
+            if consumo_impianto1 <= consumo_impianto2:
                 id_scelto = id_impianto1
-                consumo_scelto = consumo_impianto2
+                consumo_scelto = consumo_impianto1
+                costo_corrente += consumo_scelto
 
-            costo_corrente += consumo_scelto
+            else :
+                id_scelto = id_impianto2
+                consumo_scelto = consumo_impianto2
+                costo_corrente += consumo_scelto
 
             if ultimo_impianto is not None and ultimo_impianto != id_scelto :
-                costo_corrente += (consumo_scelto + 5)
+                costo_corrente += 5
+                ultimo_impianto = id_scelto
+            else :
+                ultimo_impianto = id_scelto
 
-            sequenza_parziale.append (id_scelto)
-            ultimo_impianto = id_scelto
+            sequenza_parziale.append (ultimo_impianto)
             giorno += 1
 
             self.__ricorsione (sequenza_parziale, giorno, ultimo_impianto, costo_corrente, consumi_settimana)
@@ -106,7 +109,7 @@ class Model:
 
         for impianto in self._impianti :
             consumi = ConsumoDAO.get_consumi (impianto.id)
-            valori_prima_settimana = [0] * 7
+            valori_prima_settimana = []
 
             for consumo in consumi :
                 if consumo.data.month == mese and consumo.data.day in range (1, 8) :
